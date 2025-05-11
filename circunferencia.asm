@@ -2,10 +2,11 @@
 .STACK 100h
 
 .DATA
-    center_x DW 160   ; Centro X
-    center_y DW 100   ; Centro Y
-    radius DW 2      ; Radio del círculo
-    color DB 0Ch      ; Color rojo
+    center_x DW 80     ; Centro X
+    center_y DW 50     ; Centro Y
+    radius DW 10       ; Radio del círculo
+    color DB 0Ch       ; Color base (será sobrescrito)
+    seed DW 0          ; Semilla para números aleatorios
 
 .CODE
 start:
@@ -16,7 +17,8 @@ start:
     MOV AX, 0013h
     INT 10h
 
-    ; Dibujar círculo
+    ; Generar color aleatorio y dibujar círculo
+    CALL generar_color_aleatorio
     CALL draw_circle
 
     ; Esperar tecla
@@ -31,6 +33,44 @@ start:
     MOV AX, 4C00h
     INT 21h
 
+;--------------------------------------------------------------------
+; Genera una semilla basada en el tiempo del sistema
+generar_semilla PROC
+    PUSH AX
+    PUSH CX
+    PUSH DX
+    MOV AH, 2Ch
+    INT 21h       ; CH = hora, CL = min, DH = seg, DL = 1/100 seg
+    MOV [seed], DX ; Usar segundos y centésimas como semilla
+    POP DX
+    POP CX
+    POP AX
+    RET
+generar_semilla ENDP
+
+; Genera número aleatorio entre 0-255 en AL
+generar_aleatorio PROC
+    MOV AX, [seed]
+    MOV DX, 8405h ; Multiplicador para LCG
+    MUL DX
+    INC AX
+    MOV [seed], AX ; Actualizar semilla
+    MOV AL, AH     ; Usar parte alta para mayor aleatoriedad
+    RET
+generar_aleatorio ENDP
+
+; Establece color aleatorio (0-15 para colores básicos)
+generar_color_aleatorio PROC
+    PUSH AX
+    CALL generar_semilla
+    CALL generar_aleatorio
+    AND AL, 0Fh   ; Máscara para 16 colores básicos (0-15)
+    MOV [color], AL
+    POP AX
+    RET
+generar_color_aleatorio ENDP
+
+;--------------------------------------------------------------------
 ; Procedimiento para dibujar píxel
 put_pixel PROC
     PUSH BX
@@ -59,8 +99,8 @@ circle_loop:
     
     ; Caso d < 0 (E)
     MOV AX, SI
-    SHL AX, 2      
-    ADD AX, 6      
+    SHL AX, 2      ; Multiplicar por 4 (equivalente a SI*4)
+    ADD AX, 6      ; Sumar 6 (total = 4*SI + 6)
     ADD BX, AX
     JMP next_step
 
@@ -141,5 +181,6 @@ draw_octants PROC
 
     RET
 draw_octants ENDP
+
 
 END start
