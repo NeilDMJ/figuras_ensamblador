@@ -1,0 +1,178 @@
+.MODEL SMALL 
+
+.DATA 
+Y DW 0
+X DW 0
+COLOR DB 0
+BASE DW 40
+ALTURA DW 30
+VALUE DW 0
+REPETICIONES DB 0
+
+.CODE
+PRINCI PROC FAR
+   ;PROTOCOLO
+    mov ax,@data
+    mov ds,ax
+    
+    CALL GRAPH
+    CALL RECTANGULO 
+    MOV AH,4Ch                      ; Terminar programa
+    INT 21h
+RET
+PRINCI ENDP
+
+GRAPH PROC                          ;Inicia modo gr?fico
+    MOV AH,00H                      ;Set video mode (Func 00/int 10h)
+    MOV AL,12H                      ;12h = 80x30 8x16 640x480 16/256k A000 VGA, ATI, VIP
+    INT 10H                         ;Interrupt 10h Video functions
+RET
+GRAPH   ENDP
+
+SEMILLA PROC
+    PUSH AX
+    MOV AH,2CH
+    INT 21H  
+    POP AX
+    RET
+SEMILLA ENDP
+
+ALEATORIO PROC
+    MOV AX,DX 
+    MOV DX,0                        ;CARGANDO CERO EN LA POSICION MAS SIGNIFICATIVA DEL MULTIPLICANDO
+    MOV BX,2053                     ; MULTIPLICADOR
+    MUL BX
+    MOV BX,13849                    ;CARGA EN BX LA CONSTANTE ADITIVA
+    CLC
+    ADD AX,BX                       ; SUMA PARTES MENOS SIGNIFICATIVAS DEL RESULTADO
+    ADC DX,0                        ; SUMA EL ACARREO SI ES NECESARIO
+    MOV BX,0FFFFH                   ; CARGAR LA CONSTANTE 2**16-1
+    DIV BX
+    MOV AX,DX                       ; MUEVE EL RESIDUO  AX
+    RET
+ALEATORIO ENDP
+
+ESCALANDO PROC
+    MOV DX,0
+    MOV BX, VALUE 
+    DIV BX 
+    RET
+ESCALANDO ENDP
+
+PUNTO PROC  
+PUSH CX                             ;Dibuja un punto en la pantalla (En modo gr?fico)
+    MOV AH,0CH                      ;Func 0C/Int 10h
+    MOV AL,COLOR                    ;color 0-15
+    MOV BH,0                        ;pagina (0 por default en esta aplicaci?n)
+    MOV CX,Y                        ;Columna
+    MOV DX,X                        ;Fila
+    INT 10H                         ;Interrupt 10h Video functions
+POP CX
+RET
+PUNTO  ENDP
+
+RECTANGULO PROC
+    MOV REPETICIONES, 30
+IMPRESION:
+    CALL POSICION
+    CALL BASEALTURA
+    CALL ALCOLOR
+    CALL RRIG
+    CALL RDOWN
+    CALL RLEFT
+    CALL RUP
+    JMP IMPRESION
+SALIR:   
+    RET
+RECTANGULO ENDP
+POSICION PROC
+PUSH DX
+YP: 
+    CALL SEMILLA
+    CALL ALEATORIO
+    MOV VALUE, 640
+    CALL ESCALANDO
+    MOV Y,DX
+XP:
+    CALL SEMILLA
+    CALL ALEATORIO
+    MOV VALUE, 480
+    CALL ESCALANDO
+    MOV X,DX
+POP DX
+RET 
+POSICION ENDP
+
+BASEALTURA PROC
+PUSH DX
+ABASE:
+    CALL SEMILLA
+    CALL ALEATORIO
+    MOV VALUE, 64
+    CALL ESCALANDO
+    ADD DX,10
+    MOV BASE,DX
+AALTURA:
+    CALL SEMILLA
+    CALL ALEATORIO
+    MOV VALUE, 48
+    CALL ESCALANDO
+    ADD DX, 10
+    MOV ALTURA,DX
+POP DX
+RET
+BASEALTURA ENDP
+ALCOLOR PROC
+    PUSH DX
+    CALL SEMILLA
+    CALL ALEATORIO
+    MOV VALUE, 15
+    MOV COLOR, DL
+    POP DX    
+    RET
+    
+ALCOLOR ENDP
+
+RUP PROC
+PUSH CX
+    MOV CX, ALTURA
+UP:
+    CALL PUNTO
+    DEC X
+    LOOP UP
+POP CX
+RET
+RUP ENDP
+RDOWN PROC
+PUSH CX
+    MOV CX, ALTURA
+DOWN:
+    CALL PUNTO
+    INC X
+    LOOP DOWN
+POP CX
+RET
+RDOWN ENDP
+RRIG PROC
+PUSH CX
+    MOV CX, BASE
+RIGHT:
+    CALL PUNTO
+    INC Y
+    LOOP RIGHT
+POP CX
+RET
+RRIG ENDP
+RLEFT PROC
+PUSH CX
+    MOV CX, BASE
+LEFT:
+    CALL PUNTO
+    DEC Y 
+    LOOP LEFT 
+POP CX
+    RET
+RLEFT ENDP
+
+END PRINCI
+
