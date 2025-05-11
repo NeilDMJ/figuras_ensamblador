@@ -2,11 +2,11 @@
 .STACK 100h
 
 .DATA
-    center_x DW 80     ; Centro X
-    center_y DW 50     ; Centro Y
+    center_x DW 80     ; Centro X (se actualizará)
+    center_y DW 50     ; Centro Y (se actualizará)
     radius DW 10       ; Radio del círculo
-    color DB 0Ch       ; Color base (será sobrescrito)
-    seed DW 0          ; Semilla para números aleatorios
+    color DB 0Ch       ; Color base 
+    seed DW 0          ; Semilla para aleatorios
 
 .CODE
 start:
@@ -16,10 +16,18 @@ start:
     ; Establecer modo gráfico 13h
     MOV AX, 0013h
     INT 10h
-
-    ; Generar color aleatorio y dibujar círculo
+    MOV CX,10
+REPETIR:
+    ; Generar posición y color aleatorios
+    CALL generar_semilla
+    CALL generar_radio_aleatorio
+    CALL generar_posicion_aleatoria
     CALL generar_color_aleatorio
+
+    ; Dibujar círculo
+    
     CALL draw_circle
+    LOOP REPETIR
 
     ; Esperar tecla
     MOV AH, 00h
@@ -32,6 +40,58 @@ start:
     ; Salir
     MOV AX, 4C00h
     INT 21h
+;--------------------------------------------------------------------
+generar_radio_aleatorio PROC
+    CALL generar_aleatorio
+    AND AL, 0Fh
+    ADD AL, 5
+    XOR AH, AH        ; Limpiar parte alta (AH = 0)
+    MOV [radius], AX  ; AX ahora tiene el valor 16-bit
+    RET
+generar_radio_aleatorio ENDP
+;--------------------------------------------------------------------
+; Genera posición aleatoria dentro de márgenes seguros
+generar_posicion_aleatoria PROC
+    ; Margen = radio + 5 (15) para evitar bordes
+    MOV BX, [radius]
+    ADD BX, 5
+
+    ; Generar X (entre margen y 319 - margen)
+    CALL generar_aleatorio
+    XOR AH, AH          ; AX = 0-255
+    MOV DX, 0
+    MOV CX, 319         ; Límite máximo X
+    SUB CX, BX          ; 319 - margen
+    SUB CX, BX          ; 319 - 2*margen
+    INC CX              ; Rango total
+    MOV BX, CX
+    CALL calcular_rango_aleatorio
+    ADD AX, BX          ; AX = margen + random
+    MOV [center_x], AX
+
+    ; Generar Y (entre margen y 199 - margen)
+    CALL generar_aleatorio
+    XOR AH, AH
+    MOV DX, 0
+    MOV CX, 199         ; Límite máximo Y
+    SUB CX, BX          ; 199 - margen
+    SUB CX, BX          ; 199 - 2*margen
+    INC CX
+    MOV BX, CX
+    CALL calcular_rango_aleatorio
+    ADD AX, BX          ; AX = margen + random
+    MOV [center_y], AX
+
+    RET
+
+calcular_rango_aleatorio: ; AX = random, BX = rango -> Devuelve AX = random % BX
+    CMP BX, 0
+    JE fin_calculo
+    DIV BX              ; DX = AX % BX
+    MOV AX, DX
+fin_calculo:
+    RET
+generar_posicion_aleatoria ENDP
 
 ;--------------------------------------------------------------------
 ; Genera una semilla basada en el tiempo del sistema
