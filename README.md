@@ -28,7 +28,9 @@ Este proyecto permite dibujar **rectángulos**, **círculos** y **líneas** de f
 
 ## 📷 Capturas de pantalla
 
+![Rectangulos](img/rectangulos.png)
 ![Circulos](img/circulos.png)
+![Lineas](img/lineas.png)
 
 
 
