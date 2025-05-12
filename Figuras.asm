@@ -1,5 +1,5 @@
 .MODEL small
-.STACK 100h
+.STACK 100 
 
 .DATA
 ;:::::::::::::::::::::DATA PARA LA PARTE DE MENU::::::::::::::::::::::::::::::::
@@ -28,12 +28,16 @@
     seed DW 0          ; Semilla para aleatorios
 ;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ;:::::::::::::::::::::::DATA PARA LAS LINEAS:::::::::::::::::::::::::::::::::::
-    x0      DW 20
-    y0      DW 20
-    x1      DW 120
-    y1      DW 120
-    dx_abs DW 0     ; Delta X absoluto
-    dy_abs DW 0
+    Xx      DW 0
+    Yy      DW 0
+    x0     DW 0
+    y0     DW 0
+    x1     DW 0
+    y1     DW 0
+    col  DB 0Ch
+    sed   DW 0
+    direccion DB 0  
+    len    DW 0
 
 .CODE  
 
@@ -132,7 +136,7 @@ OPCION2:
     JMP EXIT 
 ;**********************************************************************************
 OPCION3:
-    CALL LINEAS
+    CALL LINEA
     JMP EXIT            
 ;**********************************************************************************
 OPCION4:
@@ -173,7 +177,7 @@ PUSH AX CX DX
 POP DX CX AX
 RET
 RECTANGULOS_ALEATORIOS ENDP
-;::::::::::::::::::::::::::::::::MODO GRÁFICO:::::::::::::::::::::::::::::::::::::::
+;::::::::::::::::::::::::::::::::MODO GR?FICO:::::::::::::::::::::::::::::::::::::::
 GRAPH PROC                    ;Inicia modo gr?fico
     MOV AH,00H      ;Set video mode (Func 00/int 10h)
     MOV AL,12H      ;12h = 80x30 8x16 640x480 16/256k A000 VGA, ATI, VIP
@@ -565,184 +569,203 @@ RET
 CIRCULO ENDP
 ;:::::::::::::::::::::::::::SUBRUTINAS PARA LA GENERACION DE LINEAS::::::::::::::::::
 ; ================== PROCEDIMIENTOS ALEATORIOS ==================
-inicializar_semilla PROC
-    PUSH AX CX DX
-    MOV AH, 2Ch       ; Obtener tiempo del sistema
-    INT 21h           ; DH = segundos, DL = centésimas
-    MOV [seed], DX    ; Usar como semilla inicial
-    POP DX CX AX
+generar_semillaL PROC
+    PUSH AX
+    PUSH CX
+    PUSH DX
+    MOV AH, 2Ch
+    INT 21h             ; CH=hora, CL=min, DH=seg, DL=1/100s
+    MOV [sed], DX      ; Usar segundos y centésimas como semilla
+    POP DX
+    POP CX
+    POP AX
     RET
-inicializar_semilla ENDP
+generar_semillaL ENDP
 
-
+; Generar número aleatorio entre 0-65535 en AX
 generar_aleatorioL PROC
-    MOV AX, [seed]
-    MOV DX, 8405h     ; Multiplicador
+    MOV AX, [sed]
+    MOV DX, 8405h       ; Multiplicador para LCG
     MUL DX
-    ADD AX, 1         ; Incremento
-    MOV [seed], AX     ; Actualizar semilla
+    INC AX
+    MOV [sed], AX      ; Actualizar semilla
     RET
 generar_aleatorioL ENDP
 
-generar_coordenada PROC   ; Devuelve en AX (0-319)
+; Generar color aleatorio (1-15)
+generar_color_aleatorioL PROC
+    CALL generar_aleatorio
+    AND AL, 0Fh         ; 16 colores básicos
+    CMP AL, 0
+    JNE color_valido
+    MOV AL, 1           ; Evitar negro
+color_valido:
+    MOV [col], AL
+    RET
+generar_color_aleatorioL ENDP
+
+;-----------------------------------------------------
+; Generar coordenadas y dirección aleatorias
+generar_linea_aleatoriaL PROC
+    ; Generar punto inicial (x0, y0)
     CALL generar_aleatorioL
     XOR DX, DX
-    MOV BX, 320       ; Rango máximo X
-    DIV BX
-    MOV AX, DX        ; Usar residuo
-    RET
-generar_coordenada ENDP
-
-generar_color PROC
-    CALL generar_aleatorioL
-    AND AL, 0Fh       ; Limitar a 16 colores básicos
-    CMP AL, 0
-    JNE color_ok
-    MOV AL, 1         ; Evitar color negro (0)
-color_ok:
-    RET
-generar_color ENDP
-
-generar_linea_aleatoria PROC
-    ; Generar coordenadas
-    CALL generar_coordenada
-    MOV [x0], AX
-    CALL generar_coordenada
-    MOV [y0], AX
-    CALL generar_coordenada
-    MOV [x1], AX
-    CALL generar_coordenada
-    MOV [y1], AX
+    MOV BX, 320
+    DIV BX              ; DX = residuo (0-319)
+    MOV [x0], DX
     
-    ; Generar color
-    CALL generar_color
-    MOV [color], AL
+    CALL generar_aleatorioL
+    XOR DX, DX
+    MOV BX, 200
+    DIV BX              ; DX = residuo (0-199)
+    MOV [y0], DX
+    
+    ; Generar dirección (0-3)
+    CALL generar_aleatorioL
+    AND AL, 03h
+    MOV [direccion], AL
+    
+    ; Generar longitud (10-100)
+    CALL generar_aleatorioL
+    AND AX, 007Fh
+    ADD AX, 10
+    MOV [len], AX
+    
+    ; Calcular punto final (x1, y1)
+    MOV AX, [x0]
+    MOV BX, [y0]
+    MOV CX, [len]
+    
+    CMP [direccion], 0
+    JE vertical
+    CMP [direccion], 1
+    JE horizontal
+    CMP [direccion], 2
+    JE diagonal_sup
+    JMP diagonal_inf
+
+vertical:
+    ADD BX, CX
+    CMP BX, 199
+    JLE fin_calc
+    MOV BX, 199
+    JMP fin_calc
+
+horizontal:
+    ADD AX, CX
+    CMP AX, 319
+    JLE fin_calc
+    MOV AX, 319
+    JMP fin_calc
+
+diagonal_sup:
+    ADD AX, CX
+    ADD BX, CX
+    CMP AX, 319
+    JLE check_y1
+    MOV AX, 319
+check_y1:
+    CMP BX, 199
+    JLE fin_calc
+    MOV BX, 199
+    JMP fin_calc
+
+diagonal_inf:
+    ADD AX, CX
+    SUB BX, CX
+    CMP AX, 319
+    JLE check_y2
+    MOV AX, 319
+check_y2:
+    CMP BX, 0
+    JGE fin_calc
+    MOV BX, 0
+
+fin_calc:
+    MOV [x1], AX
+    MOV [y1], BX
+    CALL generar_color_aleatorioL
     RET
-generar_linea_aleatoria ENDP
-;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-; ================== PROCEDIMIENTOS GRÁFICOS ==================
+generar_linea_aleatoriaL ENDP
+;:::::::::::::::::::::::::::::::::::DIBUJADO DE LINEAS::::::::::::::::::::::::::::::::::::::::
 put_pixelL PROC
+    PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
     MOV AH, 0Ch
+    MOV AL, [col]
     MOV BH, 0
+    MOV CX, [Xx]
+    MOV DX, [Yy]
     INT 10h
+    POP DX
+    POP CX
+    POP BX
+    POP AX
     RET
-put_pixelL ENDP
-;:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-draw_line PROC
-    ; Calcular delta X y delta Y absolutos
-    MOV AX, x1
-    SUB AX, x0
-    JNS dx_pos
-    NEG AX
-dx_pos:
-    MOV dx_abs, AX   ; Guardar |x1 - x0|
+    put_pixelL ENDP
 
-    MOV AX, y1
-    SUB AX, y0
-    JNS dy_pos
-    NEG AX
-dy_pos:
-    MOV dy_abs, AX   ; Guardar |y1 - y0|
+;-----------------------------------------------------
+; Dibujar línea según dirección
+dibujar_linea PROC
+    MOV AX, [x0]
+    MOV [Xx], AX
+    MOV AX, [y0]
+    MOV [Yy], AX
+    
+    MOV CX, [len]
+    CMP [direccion], 0
+    JE dibujar_vertical
+    CMP [direccion], 1
+    JE dibujar_horizontal
+    CMP [direccion], 2
+    JE dibujar_diagonal_sup
+    JMP dibujar_diagonal_inf
 
-    ; Determinar dirección de incremento para X (CORREGIDO)
-    MOV BX, 1
-    MOV AX, x1       ; Cargar x1 en registro
-    CMP AX, x0       ; Ahora es registro vs memoria
-    JG set_sy
-    MOV BX, -1
-
-set_sy:
-    ; Determinar dirección de incremento para Y (CORREGIDO)
-    MOV BP, 1
-    MOV AX, y1       ; Cargar y1 en registro
-    CMP AX, y0       ; Ahora es registro vs memoria
-    JG check_slope
-    MOV BP, -1
-
-check_slope:
-    ; Comparar dx y dy para determinar pendiente
-    MOV AX, dx_abs
-    CMP AX, dy_abs
-    JGE x_major
-
-y_major:
-    ; Línea con pendiente pronunciada (dy > dx)
-    MOV AX, dx_abs
-    SHL AX, 1        ; 2*dx_abs
-    SUB AX, dy_abs    ; error = 2*dx - dy
-    MOV SI, AX        ; SI = error
-
-    MOV CX, x0
-    MOV DX, y0
-
-y_loop:
-    MOV AL, color
+dibujar_vertical:
     CALL put_pixelL
+    INC [Yy]
+    LOOP dibujar_vertical
+    JMP fin_dibujo
 
-    CMP DX, y1       ; Verificar si llegó al final
-    JE end_draw
-
-    CMP SI, 0        ; Chequear error
-    JL y_skip_x
-
-    ADD CX, BX       ; Ajustar X
-    SUB SI, dy_abs   ; error -= dy
-    SUB SI, dy_abs
-
-y_skip_x:
-    ADD SI, dx_abs   ; error += dx
-    ADD SI, dx_abs
-    ADD DX, BP       ; Incrementar Y
-    JMP y_loop
-
-x_major:
-    ; Línea con pendiente suave (dx >= dy)
-    MOV AX, dy_abs
-    SHL AX, 1        ; 2*dy_abs
-    SUB AX, dx_abs    ; error = 2*dy - dx
-    MOV SI, AX        ; SI = error
-
-    MOV CX, x0
-    MOV DX, y0
-
-x_loop:
-    MOV AL, color
+dibujar_horizontal:
     CALL put_pixelL
+    INC [Xx]
+    LOOP dibujar_horizontal
+    JMP fin_dibujo
 
-    CMP CX, x1       ; Verificar si llegó al final
-    JE end_draw
+dibujar_diagonal_sup:
+    CALL put_pixelL
+    INC [Xx]
+    INC [Yy]
+    LOOP dibujar_diagonal_sup
+    JMP fin_dibujo
 
-    CMP SI, 0        ; Chequear error
-    JL x_skip_y
+dibujar_diagonal_inf:
+    CALL put_pixelL
+    INC [Xx]
+    DEC [Yy]
+    LOOP dibujar_diagonal_inf
 
-    ADD DX, BP       ; Ajustar Y
-    SUB SI, dx_abs   ; error -= dx
-    SUB SI, dx_abs
-
-x_skip_y:
-    ADD SI, dy_abs   ; error += dy
-    ADD SI, dy_abs
-    ADD CX, BX       ; Incrementar X
-    JMP x_loop
-
-end_draw:
+fin_dibujo:
     RET
-draw_line ENDP
-;:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-LINEAS PROC
-    CALL inicializar_semilla
+dibujar_linea ENDP
+
+LINEA PROC
     CALL GRAPH13
-RLINEA:  
-    CALL generar_linea_aleatoria
-    CALL draw_line
+    CALL generar_semillaL 
+LINEASRE:
+    CALL generar_linea_aleatoriaL
+    CALL dibujar_linea
     MOV AH, 00H
     JMP TECLAL
 TECLAL: 
    INT 16H
    CMP AL, '3'
-   JNE RLINEA
+   JNE LINEASRE
 SALIDAL:
 RET
-LINEAS ENDP
 
+LINEA ENDP 
 END PRINCI
