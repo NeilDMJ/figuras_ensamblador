@@ -1,6 +1,5 @@
 .MODEL small
 .STACK 100h
-
 .DATA
 ;:::::::::::::::::::::DATA PARA LA PARTE DE MENU::::::::::::::::::::::::::::::::
     MSG1 db ":::::::::::::MENU::::::::::::$",0
