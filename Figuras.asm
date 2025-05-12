@@ -754,8 +754,8 @@ dibujar_linea ENDP
 
 LINEA PROC
     CALL GRAPH13
-    CALL generar_semillaL 
 LINEASRE:
+    CALL generar_semillaL 
     CALL generar_linea_aleatoriaL
     CALL dibujar_linea
     MOV AH, 00H
