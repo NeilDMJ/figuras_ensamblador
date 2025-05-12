@@ -18,3 +18,17 @@ Este proyecto permite dibujar **rectángulos**, **círculos** y **líneas** de f
 - Selección del tipo de figura a dibujar mediante menú
 - Uso de coordenadas, colores y tamanios generadas aleatoriamente dentro de la pantalla
 
+
+## 🔧 Cómo compilar y ejecutar
+
+1. Abre GUI Turbo Assembler.
+2. Copia los archivos al directorio de trabajo.
+3. Ejecuta el archivo que desees:
+
+
+## 📷 Capturas de pantalla
+
+![Circulos](img/circulos.png)
+
+
+
