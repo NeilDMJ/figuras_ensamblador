@@ -1,5 +1,6 @@
 .MODEL small
 .STACK 100h
+
 .DATA
 ;:::::::::::::::::::::DATA PARA LA PARTE DE MENU::::::::::::::::::::::::::::::::
     MSG1 db ":::::::::::::MENU::::::::::::$",0
@@ -119,7 +120,6 @@ OPCION1:
 ;*********************************************************************************
 OPCION2:
     CALL CIRCULO
-    CALL LIMPIA
     JMP EXIT 
 ;**********************************************************************************
 OPCION3:
@@ -557,13 +557,19 @@ RCIRCULO:
     CALL generar_color_aleatorio
     CALL draw_circle
     MOV AH, 00H
-    JMP TECLA
+    JMP TECLAC
 TECLAC: 
    INT 16H
    CMP AL, '2'
    JNE RCIRCULO
-SALIDAC:   
+SALIDAC:
 RET
 CIRCULO ENDP
 
 END PRINCI
+
+
+
+
+
+
