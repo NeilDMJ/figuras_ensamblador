@@ -3,6 +3,7 @@
 
 .DATA
 ;:::::::::::::::::::::DATA PARA LA PARTE DE MENU::::::::::::::::::::::::::::::::
+
     MSG1 db ":::::::::::::MENU::::::::::::$",0
     MSG2 db "1. Rectangulos$",0
     MSG3 db "2. Circulos$",0
@@ -10,8 +11,9 @@
     MSG5 db "4. Salir$",0
     MSG6 db "Pulse alguna tecla del 1 al 4 de su teclado$",0
     MEN DB 'Hola ........$'
-;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 ;::::::::::::::::::::::DATA PARA LOS RECTANGULOS:::::::::::::::::::::::::::::::
+
     Y DW 0
     X DW 0
     COLOR DB 0
@@ -19,78 +21,81 @@
     ALTURA DW 30
     VALUE DW 0
     REPETICIONES DB 0
-;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 ;:::::::::::::::::::::::DATA PARA LOS CIRCULOS:::::::::::::::::::::::::::::::::
-    center_x DW 80     ; Centro X (se actualizar??)
-    center_y DW 50     ; Centro Y (se actualizar??)
-    radius DW 10       ; Radio del c??rculo
-    color DB 0Ch       ; Color base 
-    seed DW 0          ; Semilla para aleatorios
-;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+    center_x    DW 80                  ; Centro X (se actualizar??)
+    center_y    DW 50                  ; Centro Y (se actualizar??)
+    radius      DW 10                  ; Radio del c??rculo
+    color       DB 0Ch                 ; Color base 
+    seed        DW 0                   ; Semilla para aleatorios
+
 ;:::::::::::::::::::::::DATA PARA LAS LINEAS:::::::::::::::::::::::::::::::::::
-    Xx      DW 0
-    Yy      DW 0
-    x0     DW 0
-    y0     DW 0
-    x1     DW 0
-    y1     DW 0
-    col  DB 0Ch
-    sed   DW 0
-    direccion DB 0  
-    len    DW 0
+
+    Xx          DW 0
+    Yy          DW 0
+    x0          DW 0
+    y0          DW 0
+    x1          DW 0
+    y1          DW 0
+    col         DB 0Ch
+    sed         DW 0
+    direccion   DB 0  
+    len         DW 0
 
 .CODE  
 
 PRINCI PROC FAR
 ;----------------------------------------------------------------------------------
     ;PROTOCOLO
-    mov ax,@data        ;PROTOCOLO resguarda direcci?n del segmento de datos
-    mov ds,ax           ;Protocolo ds = ax
+    mov ax,@data                       ;PROTOCOLO resguarda direccion del segmento de datos
+    mov ds,ax                          ;Protocolo ds = ax
 ;----------------------------------------------------------------------------------
     ;INCIO DEL PROGRAMA
     CALL LIMPIA 
-    CALL MENU           ;LLAMADA A LA FUNCION MENU 
+    CALL MENU                          ;LLAMADA A LA FUNCION MENU 
     
-    CALL SALIDA         ;LLANADA AL SERVICIO DE SALIDA DEL SISTEMA
+    CALL SALIDA                        ;LLANADA AL SERVICIO DE SALIDA DEL SISTEMA
     
     
     RET
 PRINCI ENDP 
-;:::::::::::::::::SUBRUTINAS QUE SE OCUPARON PARA REALIZAR EL CODIGO:::::::::::::::
+;----------------------------------------------------------------------------------
+;::::::::::::::::::::::::::::::SUBRUTINAS PRINCIPALES::::::::::::::::::::::::::::::
 ;----------------------------------------------------------------------------------
 MENU PROC 
-;IMPRESION DEL MENU COMPLETO
+    ;IMPRESION DEL MENU COMPLETO
     CALL GRAPH
     MOV AH,02
     MOV BH,00
     MOV DX,0H
     INT 10H
-    LEA DX, MSG1           ;Imprime el MSG DE LA PALABRA MENU 
-    MOV AH, 9H             ;LLAMADA AL SERVICIO DE IMPRESION 
-    INT 21H                ;INTERRUPCION 21 PARA REALIZAR LA ACCI?N
-    CALL NEWLINE           ;SALTO DE LINEA 
+    LEA DX, MSG1                      ;IMPRIME EL MSG DE LA PALABRA MENU 
+    MOV AH, 9H                        ;LLAMADA AL SERVICIO DE IMPRESION 
+    INT 21H                           ;INTERRUPCION 21 PARA REALIZAR LA ACCION
+    CALL NEWLINE                      ;SALTO DE LINEA 
     
-    LEA DX, MSG2           ;IMPRIME 1. CUADROS 
+    LEA DX, MSG2                      ;IMPRIME 1. CUADROS 
     MOV AH, 9H
     INT 21H 
     CALL NEWLINE 
     
-    LEA DX, MSG3           ;IMPRIME 2. CIRCULOS
+    LEA DX, MSG3                      ;IMPRIME 2. CIRCULOS
     MOV AH, 9H
     INT 21H 
     CALL NEWLINE 
     
-    LEA DX, MSG4           ;IMPRIME 3. LINEAS
+    LEA DX, MSG4                      ;IMPRIME 3. LINEAS
     MOV AH, 9H
     INT 21H 
     CALL NEWLINE
     
-    LEA DX, MSG5           ;OPCION PARA SALIR DEL SISTEMA 
+    LEA DX, MSG5                      ;OPCION PARA SALIR DEL SISTEMA 
     MOV AH, 9H
     INT 21H 
     CALL NEWLINE 
     
-    LEA DX, MSG6           ;SELECCI?N DE ALGUNA TECLA 
+    LEA DX, MSG6                      ;SELECCION DE ALGUNA TECLA 
     MOV AH, 9H
     INT 21H 
     CALL NEWLINE
@@ -98,21 +103,24 @@ MENU PROC
     CALL TECLAS
     RET 
 MENU ENDP
+
 ;----------------------------------------------------------------------------------
+
 LIMPIA PROC 
-   PUSH AX              ;RESGUARDAMOS AX
-   PUSH DX              ;RESGUARDAMOS DX
-   MOV AX,0600h         ;SERVICIO PARA LIMPIAR PANTALLA
-   MOV BH,71h           ;COLOR A OCUPAR 4 BITS PARA CADA UNO EN BH 
-   MOV CX,0000h         ;COORDENADAS DEL LIMPIADO
-   MOV DX,184Fh         ;CORDENADAS FINALES
-   INT 10h              ;LLAMADA A LA INTERRUPCION
-   POP DX               ;OBTENEMOS DX
-   POP AX 
-                        ;OBTENEMOS AX 
+   PUSH AX                            ;RESGUARDAMOS AX
+   PUSH DX                            ;RESGUARDAMOS DX
+   MOV AX,0600h                       ;SERVICIO PARA LIMPIAR PANTALLA
+   MOV BH,71h                         ;COLOR A OCUPAR 4 BITS PARA CADA UNO EN BH 
+   MOV CX,0000h                       ;COORDENADAS DEL LIMPIADO
+   MOV DX,184Fh                       ;CORDENADAS FINALES
+   INT 10h                            ;LLAMADA A LA INTERRUPCION
+   POP DX                             ;OBTENEMOS DX
+   POP AX                             ;OBTENEMOS AX
+                                      
 LIMPIA ENDP
+
 ;----------------------------------------------------------------------------------
-;*********************************************************************************
+
 TECLAS PROC  
 
 RASTREA:
@@ -124,7 +132,7 @@ RASTREA:
     CMP AL, '3'
     JE OPCION3
     CMP AL, '4'
-    JE OPCION4            ;EN DADO CASO QUE NO SEA ALGUNA DE LAS TRES TECLAS QUE LANCE DE NUEVO AL MENU  
+    JE OPCION4                          ;EN DADO CASO QUE NO SEA ALGUNA DE LAS TRES TECLAS QUE LANCE DE NUEVO AL MENU  
     CALL MENU
     RET 
 OPCION1: 
@@ -140,26 +148,29 @@ OPCION3:
     JMP EXIT            
 ;**********************************************************************************
 OPCION4:
-    CALL SALIDA         ;LLAMA AL SERVICIO DE SALIDA PARA DOSBOX 
+    CALL SALIDA                         ;LLAMA AL SERVICIO DE SALIDA PARA DOSBOX 
     
 EXIT:
     CALL MENU  
     RET
 TECLAS ENDP
+
 ;----------------------------------------------------------------------------------
+
 SALIDA PROC 
     mov ax, 4C00h
     int 21h
     
     RET 
 SALIDA ENDP 
+
 ;----------------------------------------------------------------------------------
+
 NEWLINE PROC
-   ;Imprime un salto de l?nea
     push ax
     push dx
     mov ah, 02h
-    mov dl, 0Dh         ; Retorno de carro
+    mov dl, 0Dh                         
     int 21h
     mov dl, 0Ah         
     int 21h
@@ -167,24 +178,28 @@ NEWLINE PROC
     pop ax
     RET
 NEWLINE ENDP
-;***********************************************************************************
-;**Creacion de una subrutina para poner la parte que genera rectangulos aleatorios**
-;***********************************************************************************
+
+;----------------------------------------------------------------------------------
+
+;:::::::::::::::::::::::GENERAR RECTANGULOS ALEATORIOS:::::::::::::::::::::::::::::
+
+;----------------------------------------------------------------------------------
+
 RECTANGULOS_ALEATORIOS PROC
-PUSH AX CX DX
+    PUSH AX CX DX
     CALL GRAPH
     CALL RECTANGULO
-POP DX CX AX
-RET
+    POP DX CX AX
+    RET
 RECTANGULOS_ALEATORIOS ENDP
-;::::::::::::::::::::::::::::::::MODO GR?FICO:::::::::::::::::::::::::::::::::::::::
-GRAPH PROC                    ;Inicia modo gr?fico
-    MOV AH,00H      ;Set video mode (Func 00/int 10h)
-    MOV AL,12H      ;12h = 80x30 8x16 640x480 16/256k A000 VGA, ATI, VIP
-    INT 10H         ;Interrupt 10h Video functions
-RET
+
+GRAPH PROC                              ;Inicia modo gr?fico
+    MOV AH,00H                          ;Set video mode (Func 00/int 10h)
+    MOV AL,12H                          ;12h = 80x30 8x16 640x480 16/256k A000 VGA, ATI, VIP
+    INT 10H                             ;Interrupt 10h Video functions
+    RET
 GRAPH   ENDP
-;::::::::::::::::::::::::::::::::SEMILLA Y VALORES ALEATORIOS:::::::::::::::::::::::::::::::::::::::
+
 SEMILLA PROC
     PUSH AX
     MOV AH,2CH
@@ -195,16 +210,16 @@ SEMILLA ENDP
 
 ALEATORIO PROC
     MOV AX,DX 
-    MOV DX,0  ;CARGANDO CERO EN LA POSICION MAS SIGNIFICATIVA DEL               MULTIPLICANDO
-    MOV BX,2053 ; MULTIPLICADOR
+    MOV DX,0                            ;CARGANDO CERO EN LA POSICION MAS SIGNIFICATIVA DEL MULTIPLICANDO
+    MOV BX,2053                         ; MULTIPLICADOR
     MUL BX
-    MOV BX,13849 ;CARGA EN BX LA CONSTANTE ADITIVA
+    MOV BX,13849                        ;CARGA EN BX LA CONSTANTE ADITIVA
     CLC
-    ADD AX,BX ; SUMA PARTES MENOS SIGNIFICATIVAS DEL RESULTADO
-    ADC DX,0 ; SUMA EL ACARREO SI ES NECESARIO
-    MOV BX,0FFFFH ; CARGAR LA CONSTANTE 2**16-1
+    ADD AX,BX                           ; SUMA PARTES MENOS SIGNIFICATIVAS DEL RESULTADO
+    ADC DX,0                            
+    MOV BX,0FFFFH                       ; CARGAR LA CONSTANTE 2**16-1
     DIV BX
-    MOV AX,DX ; MUEVE EL RESIDUO  AX
+    MOV AX,DX                           ; MUEVE EL RESIDUO  AX
     RET
 ALEATORIO ENDP
 
@@ -216,33 +231,33 @@ ESCALANDO PROC
 ESCALANDO ENDP
 
 BASEALTURA PROC
-PUSH DX
+    PUSH DX
 ABASE:
     CALL SEMILLA
     CALL ALEATORIO
-    MOV VALUE, 64
+    MOV  VALUE, 64
     CALL ESCALANDO
-    ADD DX,10
-    MOV BASE,DX
+    ADD  DX,10
+    MOV  BASE,DX
 AALTURA:
     CALL SEMILLA
     CALL ALEATORIO
-    MOV VALUE, 48
+    MOV  VALUE, 48
     CALL ESCALANDO
-    ADD DX, 10
-    MOV ALTURA,DX
-POP DX
-RET
+    ADD  DX, 10
+    MOV  ALTURA,DX
+    POP DX
+    RET
 BASEALTURA ENDP
 
 ALCOLOR PROC
-PUSH DX
+    PUSH DX
     CALL SEMILLA
     CALL ALEATORIO
     MOV VALUE, 15
     MOV COLOR, DL
-POP DX    
-RET
+    POP DX    
+    RET
 ALCOLOR ENDP
 
 POSICION PROC
@@ -259,30 +274,31 @@ XP:
     MOV VALUE, 480
     CALL ESCALANDO
     MOV X,DX
-POP DX
-RET 
+    POP DX
+    RET 
 POSICION ENDP
-;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 ;::::::::::::::::::PROCESO DE DIBBUJADO DE LOS RECTANGULOS:::::::::::::::::::::::::::::::::::::
+
 PUNTO PROC  
-PUSH CX         ;Dibuja un punto en la pantalla (En modo gr?fico)
-    MOV AH,0CH              ;Func 0C/Int 10h
-    MOV AL,COLOR    ;color 0-15
-    MOV BH,0                ;pagina (0 por default en esta aplicaci?n)
-    MOV CX,Y                ;Columna
-    MOV DX,X                ;Fila
-    INT 10H         ;Interrupt 10h Video functions
-POP CX
-RET
+    PUSH CX                     ;Dibuja un punto en la pantalla (En modo grafico)
+    MOV AH,0CH                  ;Func 0C/Int 10h
+    MOV AL,COLOR                ;color 0-15
+    MOV BH,0                    ;pagina (0 por default en esta aplicacion)
+    MOV CX,Y                    ;Columna
+    MOV DX,X                    ;Fila
+    INT 10H                     ;Interrupcion 10h Video functions
+    POP CX
+    RET
 PUNTO  ENDP
-;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::    
+    
 RECTANGULO PROC 
 IMPRESION:
-;    DATOS ALEATORIOS 
+    ;DATOS ALEATORIOS 
     CALL POSICION
     CALL BASEALTURA
     CALL ALCOLOR
-;    GENERAMOS EL RECTANGULO
+    ;GENERAMOS EL RECTANGULO
     CALL RRIG
     CALL RDOWN
     CALL RLEFT
@@ -290,156 +306,156 @@ IMPRESION:
     MOV AH, 00H
     JMP TECLA
 TECLA: 
-   INT 16H
-   CMP AL, '1'
-   JNE IMPRESION  
+    INT 16H
+    CMP AL, '1'
+    JNE IMPRESION  
 SALIDAR:   
- RET
+    RET
 RECTANGULO ENDP
-;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 RUP PROC
-PUSH CX
+    PUSH CX
     MOV CX, ALTURA
 UP:
     CALL PUNTO
     DEC X
     LOOP UP
-POP CX
-RET
+    POP CX
+    RET
 RUP ENDP
-;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 RDOWN PROC
-PUSH CX
+    PUSH CX
     MOV CX, ALTURA
 DOWN:
     CALL PUNTO
     INC X
     LOOP DOWN
-POP CX
-RET
+    POP CX
+    RET
 RDOWN ENDP
-;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 RRIG PROC
-PUSH CX
+    PUSH CX
     MOV CX, BASE
 RIGHT:
     CALL PUNTO
     INC Y
     LOOP RIGHT
-POP CX
-RET
+    POP CX
+    RET
 RRIG ENDP
-;::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 RLEFT PROC
-PUSH CX
+    PUSH CX
     MOV CX, BASE
 LEFT:
     CALL PUNTO
     DEC Y 
     LOOP LEFT 
-POP CX
-RET
+    POP CX
+    RET
 RLEFT ENDP
-;:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-;::::::::::::::::::::::::::::::::::PROTOCOLOS PARA CIRCULOS:::::::::::::::::::::::::::::::::::::::::
+;----------------------------------------------------------------------------------
+
+;:::::::::::::::::::::GENERAR CIRCUNFERENCIAS ALEATORIAS:::::::::::::::::::::::::::
+
+;----------------------------------------------------------------------------------
 GRAPH13 PROC
-PUSH AX
+    PUSH AX
     MOV AX, 0013h
     INT 10h
-POP AX 
-RET
+    POP AX 
+    RET
 GRAPH13 ENDP
-;:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-;:::::::::::::::::::::::::::::::::::ALEATORIEDAD PARA EL CIRCULO::::::::::::::::::::::::::::::::::::
+
 generar_radio_aleatorio PROC
     CALL generar_aleatorio
     AND AL, 0Fh
     ADD AL, 5
-    XOR AH, AH        ; Limpiar parte alta (AH = 0)
-    MOV [radius], AX  ; AX ahora tiene el valor 16-bit
+    XOR AH, AH                      ; Limpiar parte alta (AH = 0)
+    MOV [radius], AX                ; AX ahora tiene el valor 16-bit
     RET
 generar_radio_aleatorio ENDP
-;--------------------------------------------------------------------------------------------------
-; Genera posici??n aleatoria dentro de m??rgenes seguros
-generar_posicion_aleatoria PROC
-    ; Margen = radio + 5 (15) para evitar bordes
+
+    
+generar_posicion_aleatoria PROC     ; Genera posicion aleatoria dentro de los margenes 
+    
     MOV BX, [radius]
     ADD BX, 5
 
-    ; Generar X (entre margen y 319 - margen)
-    CALL generar_aleatorio
-    XOR AH, AH          ; AX = 0-255
+    
+    CALL generar_aleatorio          ; Generar X (entre margen y 319 - margen)
+    XOR AH, AH                      ; AX = 0-255
     MOV DX, 0
-    MOV CX, 319         ; L??mite m??ximo X
-    SUB CX, BX          ; 319 - margen
-    SUB CX, BX          ; 319 - 2*margen
-    INC CX              ; Rango total
+    MOV CX, 319                     ; Limite maximo X
+    SUB CX, BX                      ; 319 - margen
+    SUB CX, BX                      ; 319 - 2*margen
+    INC CX                          ; Rango total
     MOV BX, CX
     CALL calcular_rango_aleatorio
-    ADD AX, BX          ; AX = margen + random
+    ADD AX, BX                      ; AX = margen + random
     MOV [center_x], AX
 
-    ; Generar Y (entre margen y 199 - margen)
+                                    ; Generar Y (entre margen y 199 - margen)
     CALL generar_aleatorio
     XOR AH, AH
     MOV DX, 0
-    MOV CX, 199         ; L??mite m??ximo Y
-    SUB CX, BX          ; 199 - margen
-    SUB CX, BX          ; 199 - 2*margen
+    MOV CX, 199                     ; Limite maximo Y
+    SUB CX, BX                      ; 199 - margen
+    SUB CX, BX                      ; 199 - 2*margen
     INC CX
     MOV BX, CX
     CALL calcular_rango_aleatorio
-    ADD AX, BX          ; AX = margen + random
+    ADD AX, BX                      ; AX = margen + random
     MOV [center_y], AX
 RET
-calcular_rango_aleatorio: ; AX = random, BX = rango -> Devuelve AX = random % BX
+calcular_rango_aleatorio:           ; AX = random, BX = rango -> Devuelve AX = random % BX
     CMP BX, 0
     JE fin_calculo
-    DIV BX              ; DX = AX % BX
+    DIV BX                          ; DX = AX % BX
     MOV AX, DX
 fin_calculo:
     RET
 generar_posicion_aleatoria ENDP
 
-;-------------------------------------------------------------------------------------
-; Genera una semilla basada en el tiempo del sistema
 generar_semilla PROC
     PUSH AX
     PUSH CX
     PUSH DX
     MOV AH, 2Ch
-    INT 21h       ; CH = hora, CL = min, DH = seg, DL = 1/100 seg
-    MOV [seed], DX ; Usar segundos y cent??simas como semilla
+    INT 21h                         ;CH = hora, CL = min, DH = seg, DL = 1/100 seg
+    MOV [seed], DX                  ;Usar segundos y centesimas como semilla
     POP DX
     POP CX
     POP AX
     RET
 generar_semilla ENDP
 
-; Genera n??mero aleatorio entre 0-255 en AL
+                                    ; Genera numero aleatorio entre 0-255 en AL
 generar_aleatorio PROC
     MOV AX, [seed]
-    MOV DX, 8405h ; Multiplicador para LCG
+    MOV DX, 8405h                   
     MUL DX
     INC AX
-    MOV [seed], AX ; Actualizar semilla
-    MOV AL, AH     ; Usar parte alta para mayor aleatoriedad
-    RET
+    MOV [seed], AX                  ; Actualizar semilla
+    MOV AL, AH                      ; Usar parte alta 
+    RET 
 generar_aleatorio ENDP
 
-; Establece color aleatorio (0-15 para colores b??sicos)
+                                    ; Establece color aleatorio (0-15 para colores basicos)
 generar_color_aleatorio PROC
     PUSH AX
     CALL generar_semilla
     CALL generar_aleatorio
-    AND AL, 0Fh   ; M??scara para 16 colores b??sicos (0-15)
+    AND AL, 0Fh                     ; Mascara para 16 colores basicos (0-15)
     MOV [color], AL
     POP AX
     RET
 generar_color_aleatorio ENDP
-;:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-;:::::::::::::::::::::::::::::::::::DIBUJAR EL CIRCULO::::::::::::::::::::::::::::::::::::::::::::::
-; Procedimiento para dibujar p??xel
+
+;::::::::::::::::::PROCESO DE DIBBUJADO DE LAS CIRCUNFERENCIAS:::::::::::::::::::::::::::::::::::::
+
 put_pixel PROC
     PUSH BX
     MOV AH, 0Ch
@@ -449,48 +465,48 @@ put_pixel PROC
     RET
 put_pixel ENDP
 
-; Algoritmo de c??rculo de Bresenham optimizado
+
 draw_circle PROC
-    XOR SI, SI          ; x = 0
-    MOV DI, [radius]    ; y = radio
-    MOV BX, 3          ; d = 3 - 2*r
+    XOR SI, SI                      ; x = 0
+    MOV DI, [radius]                ; y = radio
+    MOV BX, 3                       ; d = 3 - 2*r
     SUB BX, DI
     SUB BX, DI
 
 circle_loop:
-    ; Dibujar 8 puntos sim??tricos
+                                    ; Dibujar 8 puntos simetricos
     CALL draw_octants
 
-    ; Actualizar par??metro de decisi??n
+                                    ; Actualizar parametro de decision
     CMP BX, 0
     JGE d_positive
     
-    ; Caso d < 0 (E)
+                                    ; Caso d < 0 (E)
     MOV AX, SI
-    SHL AX, 2      ; Multiplicar por 4 (equivalente a SI*4)
-    ADD AX, 6      ; Sumar 6 (total = 4*SI + 6)
+    SHL AX, 2                       
+    ADD AX, 6                       
     ADD BX, AX
     JMP next_step
 
 d_positive:
-    ; Caso d >= 0 (SE)
-    DEC DI             ; y--
+                                    ; Caso d >= 0 
+    DEC DI                          ; y--
     MOV AX, SI
-    SUB AX, DI         ; x - y
-    SHL AX, 2          ; 4*(x - y)
-    ADD AX, 10         ; 4*(x - y) + 10
-    ADD BX, AX
+    SUB AX, DI                      ; x - y
+    SHL AX, 2                       ; 4*(x - y)
+    ADD AX, 10                      ; 4*(x - y) + 10
+    ADD BX, AX      
 
 next_step:
-    INC SI             ; x++
+    INC SI                          ; x++
     CMP SI, DI
     JLE circle_loop
     RET
 draw_circle ENDP
 
-; Dibujar los 8 octantes
+                                    ; Dibujar los 8 octantes
 draw_octants PROC
-    ; Punto (x + cx, y + cy)
+                                    ; Punto (x + cx, y + cy)
     MOV CX, [center_x]
     ADD CX, SI
     MOV DX, [center_y]
@@ -498,49 +514,49 @@ draw_octants PROC
     MOV AL, [color]
     CALL put_pixel
 
-    ; Punto (y + cx, x + cy)
+                                    ; Punto (y + cx, x + cy)
     MOV CX, [center_x]
     ADD CX, DI
     MOV DX, [center_y]
     ADD DX, SI
     CALL put_pixel
 
-    ; Punto (-x + cx, y + cy)
+                                    ; Punto (-x + cx, y + cy)
     MOV CX, [center_x]
     SUB CX, SI
     MOV DX, [center_y]
     ADD DX, DI
     CALL put_pixel
 
-    ; Punto (-y + cx, x + cy)
+                                    ; Punto (-y + cx, x + cy)
     MOV CX, [center_x]
     SUB CX, DI
     MOV DX, [center_y]
     ADD DX, SI
     CALL put_pixel
 
-    ; Punto (x + cx, -y + cy)
+                                    ; Punto (x + cx, -y + cy)
     MOV CX, [center_x]
     ADD CX, SI
     MOV DX, [center_y]
     SUB DX, DI
     CALL put_pixel
 
-    ; Punto (y + cx, -x + cy)
+                                    ; Punto (y + cx, -x + cy)
     MOV CX, [center_x]
     ADD CX, DI
     MOV DX, [center_y]
     SUB DX, SI
     CALL put_pixel
 
-    ; Punto (-x + cx, -y + cy)
+                                    ; Punto (-x + cx, -y + cy)
     MOV CX, [center_x]
     SUB CX, SI
     MOV DX, [center_y]
     SUB DX, DI
     CALL put_pixel
 
-    ; Punto (-y + cx, -x + cy)
+                                    ; Punto (-y + cx, -x + cy)
     MOV CX, [center_x]
     SUB CX, DI
     MOV DX, [center_y]
@@ -565,73 +581,76 @@ TECLAC:
    CMP AL, '2'
    JNE RCIRCULO
 SALIDAC:
-RET
+    RET
 CIRCULO ENDP
-;:::::::::::::::::::::::::::SUBRUTINAS PARA LA GENERACION DE LINEAS::::::::::::::::::
-; ================== PROCEDIMIENTOS ALEATORIOS ==================
+;----------------------------------------------------------------------------------
+
+;:::::::::::::::::::::::::::::GENERAR LINEAS ALEATORIAS::::::::::::::::::::::::::::
+
+;----------------------------------------------------------------------------------
+
 generar_semillaL PROC
     PUSH AX
     PUSH CX
     PUSH DX
     MOV AH, 2Ch
-    INT 21h             ; CH=hora, CL=min, DH=seg, DL=1/100s
-    MOV [sed], DX      ; Usar segundos y centésimas como semilla
+    INT 21h                         ; CH=hora, CL=min, DH=seg, DL=1/100s
+    MOV [sed], DX                   ; Usar segundos y centesimas como semilla
     POP DX
     POP CX
     POP AX
     RET
 generar_semillaL ENDP
 
-; Generar número aleatorio entre 0-65535 en AX
+                                    ; Generar numero aleatorio
 generar_aleatorioL PROC
     MOV AX, [sed]
-    MOV DX, 8405h       ; Multiplicador para LCG
+    MOV DX, 8405h                   
     MUL DX
     INC AX
-    MOV [sed], AX      ; Actualizar semilla
+    MOV [sed], AX                   ; Actualizar semilla
     RET
 generar_aleatorioL ENDP
 
-; Generar color aleatorio (1-15)
+                                    ; Generar color aleatorio (1-15)
 generar_color_aleatorioL PROC
     CALL generar_aleatorio
-    AND AL, 0Fh         ; 16 colores básicos
+    AND AL, 0Fh                     ; 16 colores b??sicos
     CMP AL, 0
     JNE color_valido
-    MOV AL, 1           ; Evitar negro
+    MOV AL, 1           
 color_valido:
     MOV [col], AL
     RET
 generar_color_aleatorioL ENDP
 
-;-----------------------------------------------------
-; Generar coordenadas y dirección aleatorias
+
 generar_linea_aleatoriaL PROC
-    ; Generar punto inicial (x0, y0)
-    CALL generar_aleatorioL
+    
+    CALL generar_aleatorioL         ; Generar punto inicial (x0, y0)
     XOR DX, DX
     MOV BX, 320
-    DIV BX              ; DX = residuo (0-319)
+    DIV BX                          ; DX = residuo (0-319)
     MOV [x0], DX
     
     CALL generar_aleatorioL
     XOR DX, DX
     MOV BX, 200
-    DIV BX              ; DX = residuo (0-199)
+    DIV BX                          ; DX = residuo (0-199)
     MOV [y0], DX
     
-    ; Generar dirección (0-3)
+                                    ; Generar direccion (0-3)
     CALL generar_aleatorioL
     AND AL, 03h
     MOV [direccion], AL
     
-    ; Generar longitud (10-100)
+                                    ; Generar longitud (10-100)
     CALL generar_aleatorioL
     AND AX, 007Fh
     ADD AX, 10
     MOV [len], AX
     
-    ; Calcular punto final (x1, y1)
+                                    ; Calcular punto final (x1, y1)
     MOV AX, [x0]
     MOV BX, [y0]
     MOV CX, [len]
@@ -687,7 +706,9 @@ fin_calc:
     CALL generar_color_aleatorioL
     RET
 generar_linea_aleatoriaL ENDP
+
 ;:::::::::::::::::::::::::::::::::::DIBUJADO DE LINEAS::::::::::::::::::::::::::::::::::::::::
+
 put_pixelL PROC
     PUSH AX
     PUSH BX
@@ -704,10 +725,8 @@ put_pixelL PROC
     POP BX
     POP AX
     RET
-    put_pixelL ENDP
+put_pixelL ENDP
 
-;-----------------------------------------------------
-; Dibujar línea según dirección
 dibujar_linea PROC
     MOV AX, [x0]
     MOV [Xx], AX
@@ -761,11 +780,11 @@ LINEASRE:
     MOV AH, 00H
     JMP TECLAL
 TECLAL: 
-   INT 16H
-   CMP AL, '3'
-   JNE LINEASRE
+    INT 16H
+    CMP AL, '3'
+    JNE LINEASRE
 SALIDAL:
-RET
+    RET
 
 LINEA ENDP 
 END PRINCI
