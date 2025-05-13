@@ -22,7 +22,7 @@ PRINCI PROC FAR
 RET
 PRINCI ENDP
 
-GRAPH PROC                          ;Inicia modo gr?fico
+GRAPH PROC                          ;Inicia modo grafico
     MOV AH,00H                      ;Set video mode (Func 00/int 10h)
     MOV AL,12H                      ;12h = 80x30 8x16 640x480 16/256k A000 VGA, ATI, VIP
     INT 10H                         ;Interrupt 10h Video functions
@@ -60,10 +60,10 @@ ESCALANDO PROC
 ESCALANDO ENDP
 
 PUNTO PROC  
-PUSH CX                             ;Dibuja un punto en la pantalla (En modo gr?fico)
+PUSH CX                             ;Dibuja un punto en la pantalla (En modo grafico)
     MOV AH,0CH                      ;Func 0C/Int 10h
     MOV AL,COLOR                    ;color 0-15
-    MOV BH,0                        ;pagina (0 por default en esta aplicaci?n)
+    MOV BH,0                        ;pagina (0 por default en esta aplicacion)
     MOV CX,Y                        ;Columna
     MOV DX,X                        ;Fila
     INT 10H                         ;Interrupt 10h Video functions

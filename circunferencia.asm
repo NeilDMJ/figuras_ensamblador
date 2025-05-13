@@ -2,8 +2,8 @@
 .STACK 100h
 
 .DATA
-    center_x DW 80     ; Centro X (se actualizará)
-    center_y DW 50     ; Centro Y (se actualizará)
+    center_x DW 80     ; Centro X 
+    center_y DW 50     ; Centro Y 
     radius DW 10       ; Radio del círculo
     color DB 0Ch       ; Color base 
     seed DW 0          ; Semilla para aleatorios
@@ -141,7 +141,7 @@ put_pixel PROC
     RET
 put_pixel ENDP
 
-; Algoritmo de círculo de Bresenham optimizado
+; Algoritmo de círculo
 draw_circle PROC
     XOR SI, SI          ; x = 0
     MOV DI, [radius]    ; y = radio
@@ -159,7 +159,7 @@ circle_loop:
     
     ; Caso d < 0 (E)
     MOV AX, SI
-    SHL AX, 2      ; Multiplicar por 4 (equivalente a SI*4)
+    SHL AX, 2      ; Multiplicar
     ADD AX, 6      ; Sumar 6 (total = 4*SI + 6)
     ADD BX, AX
     JMP next_step

@@ -10,16 +10,16 @@
     MSG4 db "3. Lineas$",0
     MSG5 db "4. Salir$",0
     MSG6 db "Pulse alguna tecla del 1 al 4 de su teclado$",0
-    MEN DB 'Hola ........$'
+    MEN  DB 'Hola ........$'
 
 ;::::::::::::::::::::::DATA PARA LOS RECTANGULOS:::::::::::::::::::::::::::::::
 
-    Y DW 0
-    X DW 0
-    COLOR DB 0
-    BASE DW 40
-    ALTURA DW 30
-    VALUE DW 0
+    Y            DW 0
+    X            DW 0
+    COLOR        DB 0
+    BASE         DW 40
+    ALTURA       DW 30
+    VALUE        DW 0
     REPETICIONES DB 0
 
 ;:::::::::::::::::::::::DATA PARA LOS CIRCULOS:::::::::::::::::::::::::::::::::

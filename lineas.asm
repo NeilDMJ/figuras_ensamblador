@@ -17,12 +17,12 @@ MODEL small
 start:
     MOV AX, @data
     MOV DS, AX
-    MOV AX, 0013h       ; Modo gráfico 320x200
+    MOV AX, 0013h       ; Modo grafico 320x200
     INT 10h
     
     CALL generar_semilla ; Inicializar semilla
     
-    MOV CX, 50          ; Dibujar 50 líneas
+    MOV CX, 50          ; Dibujar 50 lineas
 bucle_lineas:
     CALL generar_linea_aleatoria
     CALL dibujar_linea
@@ -45,17 +45,17 @@ generar_semilla PROC
     PUSH DX
     MOV AH, 2Ch
     INT 21h             ; CH=hora, CL=min, DH=seg, DL=1/100s
-    MOV [seed], DX      ; Usar segundos y centésimas como semilla
+    MOV [seed], DX      ; Usar segundos y centesimas como semilla
     POP DX
     POP CX
     POP AX
     RET
 generar_semilla ENDP
 
-; Generar número aleatorio entre 0-65535 en AX
+; Generar numero aleatorio entre 0-65535 en AX
 generar_aleatorio PROC
     MOV AX, [seed]
-    MOV DX, 8405h       ; Multiplicador para LCG
+    MOV DX, 8405h       
     MUL DX
     INC AX
     MOV [seed], AX      ; Actualizar semilla
@@ -65,7 +65,7 @@ generar_aleatorio ENDP
 ; Generar color aleatorio (1-15)
 generar_color_aleatorio PROC
     CALL generar_aleatorio
-    AND AL, 0Fh         ; 16 colores básicos
+    AND AL, 0Fh         ; 16 colores b??sicos
     CMP AL, 0
     JNE color_valido
     MOV AL, 1           ; Evitar negro
@@ -75,7 +75,7 @@ color_valido:
 generar_color_aleatorio ENDP
 
 ;-----------------------------------------------------
-; Generar coordenadas y dirección aleatorias
+; Generar coordenadas y direccion aleatorias
 generar_linea_aleatoria PROC
     ; Generar punto inicial (x0, y0)
     CALL generar_aleatorio
@@ -90,7 +90,7 @@ generar_linea_aleatoria PROC
     DIV BX              ; DX = residuo (0-199)
     MOV [y0], DX
     
-    ; Generar dirección (0-3)
+    ; Generar direccion (0-3)
     CALL generar_aleatorio
     AND AL, 03h
     MOV [direccion], AL
@@ -159,7 +159,7 @@ fin_calc:
 generar_linea_aleatoria ENDP
 
 ;-----------------------------------------------------
-; Dibujar píxel en (X,Y)
+; Dibujar pixel en (X,Y)
 put_pixel PROC
     PUSH AX
     PUSH BX
@@ -179,7 +179,7 @@ put_pixel PROC
 put_pixel ENDP
 
 ;-----------------------------------------------------
-; Dibujar línea según dirección
+; Dibujar linea segun direccion
 dibujar_linea PROC
     MOV AX, [x0]
     MOV [X], AX
