@@ -22,7 +22,7 @@ Este proyecto permite dibujar **rectángulos**, **círculos** y **líneas** de f
 ## 🔧 Cómo compilar y ejecutar
 
 1. Abre GUI Turbo Assembler.
-2. Copia los archivos al directorio de trabajo.
+2. Copia los archivos a la carpeta de trabajo.
 3. Ejecuta el archivo que desees:
 
 
