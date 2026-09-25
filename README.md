@@ -2,14 +2,14 @@
 
 Este proyecto permite dibujar **rectángulos**, **círculos** y **líneas** de forma **aleatoria** utilizando lenguaje ensamblador. Fue desarrollado como parte de una práctica de programación de bajo nivel, haciendo uso de interrupciones y funciones gráficas.
 
-## 🖥️ Tecnologías utilizadas
+##  Tecnologías utilizadas
 
 - Lenguaje Ensamblador (ASM)
 - BIOS/INT 10h (modo de video)
 - Ensamblador TASM 
 - Emulador GuiTurboAssembler
 
-## 🚀 Funcionalidades
+##  Funcionalidades
 
 - Dibujo aleatorio de:
   - Rectángulos
@@ -19,14 +19,14 @@ Este proyecto permite dibujar **rectángulos**, **círculos** y **líneas** de f
 - Uso de coordenadas, colores y tamanios generadas aleatoriamente dentro de la pantalla
 
 
-## 🔧 Cómo compilar y ejecutar
+##  Cómo compilar y ejecutar
 
 1. Abre GUI Turbo Assembler.
 2. Copia los archivos al directorio de trabajo.
 3. Ejecuta el archivo que desees:
 
 
-## 📷 Capturas de pantalla
+##  Capturas de pantalla
 
 ![Rectangulos](img/rectangulos.png)
 ![Circulos](img/circulos.png)
